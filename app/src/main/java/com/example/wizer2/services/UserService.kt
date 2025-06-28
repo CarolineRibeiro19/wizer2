@@ -2,8 +2,6 @@ package com.example.wizer2.services
 
 import com.example.wizer2.models.Role
 import com.example.wizer2.models.User
-import com.example.wizer2.models.UserProfile
-import com.example.wizer2.models.UserProfileRow
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.auth
@@ -34,13 +32,17 @@ class UserService(
             val supabaseUser = auth.currentUserOrNull()
 
             if (supabaseUser != null) {
-                createUserProfile(supabaseUser.id, username, role)
-
-                User(
+                val user = User(
                     id = supabaseUser.id,
                     email = email,
-                    password = ""
+                    username = username,
+                    role = role.toString(),
                 )
+                postgrest.from("profiles").insert(
+                    user
+                )
+                user
+
             } else {
                 null
             }
@@ -58,12 +60,26 @@ class UserService(
             }
 
             val supabaseUser = auth.currentUserOrNull()
-            supabaseUser?.let {
-                User(
-                    id = it.id,
-                    email = it.email ?: email,
-                    password = "" // Don't store password
-                )
+            if (supabaseUser != null) {
+                val currentUser = postgrest.from("profiles").select {
+                    filter {
+                        eq("id", supabaseUser.id)
+                    }
+                }.decodeList<User>()
+
+                if (currentUser.isNotEmpty()) {
+                    val user = currentUser.first()
+                    User(
+                        id = user.id,
+                        email = user.email,
+                        role = user.role,
+                        username = user.username
+                    )
+                }else {
+                    null
+                }
+            }else{
+                null
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -82,12 +98,27 @@ class UserService(
     suspend fun getCurrentUser(): User? {
         return try {
             val supabaseUser = auth.currentUserOrNull()
-            supabaseUser?.let {
-                User(
-                    id = it.id,
-                    email = it.email ?: "",
-                    password = ""
-                )
+            if (supabaseUser != null) {
+                val currentUser = postgrest.from("profiles").select {
+                    filter {
+                        eq("id", supabaseUser.id)
+                    }
+                }.decodeList<User>()
+
+                if (currentUser.isNotEmpty()) {
+                    val user = currentUser.first()
+                    User(
+                        id = user.id,
+                        email = user.email,
+                        role = user.role,
+                        username = user.username
+                    )
+                }else {
+                    null
+                }
+
+            }else{
+                null
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -99,49 +130,28 @@ class UserService(
         return try {
             val currentUser = auth.currentUserOrNull()
             if (currentUser != null) {
-                // Update username in user_profiles table
-                postgrest.from("user_profiles")
+                postgrest.from("profiles")
                     .update(mapOf("username" to newUsername)) {
                         filter {
-                            eq("user_id", currentUser.id)
+                            eq("id", currentUser.id)
                         }
                     }
 
-                // Return updated user
-                User(
-                    id = currentUser.id,
-                    email = currentUser.email ?: "",
-                    password = ""
-                )
-            } else {
-                null
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
-
-    suspend fun getUserProfile(): UserProfile? {
-        return try {
-            val currentUser = auth.currentUserOrNull()
-            if (currentUser != null) {
-                val profileRows = postgrest.from("user_profiles")
-                    .select(columns = Columns.list("id", "username", "role", "user_id")) {
-                        filter {
-                            eq("user_id", currentUser.id)
-                        }
+                val newUser = postgrest.from("profiles").select {
+                    filter {
+                        eq("id", currentUser.id)
                     }
-                    .decodeList<UserProfileRow>()
+                }.decodeList<User>()
 
-                if (profileRows.isNotEmpty()) {
-                    val profileRow = profileRows.first()
-                    UserProfile(
-                        id = profileRow.id,
-                        username = profileRow.username,
-                        role = Role.valueOf(profileRow.role)
+                if (newUser.isNotEmpty()) {
+                    val user = newUser.first()
+                    User(
+                        id = user.id,
+                        email = user.email,
+                        role = user.role,
+                        username = user.username
                     )
-                } else {
+                }else {
                     null
                 }
             } else {
@@ -153,19 +163,6 @@ class UserService(
         }
     }
 
-    private suspend fun createUserProfile(userId: String, username: String, role: Role) {
-        try {
-            postgrest.from("user_profiles")
-                .insert(mapOf(
-                    "user_id" to userId,
-                    "username" to username,
-                    "role" to role.toString()
-                ))
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
-        }
-    }
 
     fun isAuthenticated(): Boolean {
         return auth.currentUserOrNull() != null
@@ -175,11 +172,4 @@ class UserService(
         return auth.currentUserOrNull()?.id
     }
 
-    fun User.toUserProfile(username: String, role: Role): UserProfile {
-        return UserProfile(
-            id = this.id,
-            username = username,
-            role = role
-        )
-    }
 }

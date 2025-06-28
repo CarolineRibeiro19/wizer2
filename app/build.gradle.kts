@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    kotlin("plugin.serialization") version "2.0.21"
+    kotlin("plugin.serialization") version "2.0.21" // Necessário para auth
 }
 
 android {
@@ -53,20 +53,18 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.lifecycle.viewmodel.compose.android)
 
-    // Supabase BOM 3.1.4
+    // Supabase e Ktor
     implementation(platform("io.github.jan-tennert.supabase:bom:3.1.4"))
-    implementation("io.github.jan-tennert.supabase:supabase-kt")
     implementation("io.github.jan-tennert.supabase:postgrest-kt")
+    implementation("io.github.jan-tennert.supabase:auth-kt")
+    implementation("io.github.jan-tennert.supabase:gotrue-kt")
+    implementation("io.github.jan-tennert.supabase:storage-kt") // se for usar futuramente
     implementation("io.ktor:ktor-client-android:2.3.4")
-
-    // Compose Navegação e Layout
-    implementation(libs.androidx.navigation.runtime.android)
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.foundation.layout.android)
-
-    // Ktor
-    implementation(libs.ktor.client.android)
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.4")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
     // Testes
     testImplementation(libs.junit)
@@ -77,4 +75,3 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
-
