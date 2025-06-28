@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     kotlin("plugin.serialization") version "2.0.21"
+
 }
 
 android {
@@ -50,10 +51,11 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-
+    implementation(libs.androidx.lifecycle.viewmodel.compose.android)
     implementation(platform("io.github.jan-tennert.supabase:bom:3.1.4"))
     implementation(libs.postgrest.kt)
     implementation(libs.ktor.client.android)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
