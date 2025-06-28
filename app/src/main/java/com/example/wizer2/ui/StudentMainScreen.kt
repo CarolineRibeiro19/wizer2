@@ -1,5 +1,6 @@
 package com.example.wizer2.ui
 
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -11,6 +12,11 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.example.wizer2.repository.GroupService
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+
+
 
 @Composable
 fun StudentMainScreen(
@@ -42,28 +48,32 @@ fun StudentMainScreen(
                 }
             }
         }
-    ) {
-        // 👉 Nenhum padding aqui
-        NavHost(
-            navController = navController,
-            startDestination = "groups"
-        ) {
-            composable("quizzes") { QuizzesScreen() }
-            composable("groups") {
-                GroupsScreen(navController = navController, groupService = groupService)
-            }
-            composable("profile") { ProfileScreen() }
+    ) { paddingValues -> // ✅ Correção aplicada aqui
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)) {
 
-            composable(
-                route = "groupDetail/{groupId}/{groupName}",
-                arguments = listOf(
-                    navArgument("groupId") { type = NavType.StringType },
-                    navArgument("groupName") { type = NavType.StringType }
-                )
-            ) { backStackEntry ->
-                val groupId = backStackEntry.arguments?.getString("groupId") ?: ""
-                val groupName = backStackEntry.arguments?.getString("groupName") ?: ""
-                GroupDetailScreen(groupId = groupId, groupName = groupName, navController = navController)
+            NavHost(
+                navController = navController,
+                startDestination = "groups"
+            ) {
+                composable("quizzes") { QuizzesScreen() }
+                composable("groups") {
+                    GroupsScreen(navController = navController, groupService = groupService)
+                }
+                composable("profile") { ProfileScreen() }
+
+                composable(
+                    route = "groupDetail/{groupId}/{groupName}",
+                    arguments = listOf(
+                        navArgument("groupId") { type = NavType.StringType },
+                        navArgument("groupName") { type = NavType.StringType }
+                    )
+                ) { backStackEntry ->
+                    val groupId = backStackEntry.arguments?.getString("groupId") ?: ""
+                    val groupName = backStackEntry.arguments?.getString("groupName") ?: ""
+                    GroupDetailScreen(groupId = groupId, groupName = groupName, navController = navController)
+                }
             }
         }
     }

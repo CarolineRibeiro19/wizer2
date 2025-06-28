@@ -54,20 +54,15 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
-    // Supabase (versões diretas, pois não estão no toml)
-    implementation("io.github.jan-tennert.supabase:supabase-kt:2.1.0")
-    implementation("io.github.jan-tennert.supabase:postgrest-kt:2.1.0")
-
-    implementation("io.ktor:ktor-client-core:2.3.4")
+    // Supabase BOM 3.1.4
+    implementation(platform("io.github.jan-tennert.supabase:bom:3.1.4"))
+    implementation("io.github.jan-tennert.supabase:supabase-kt")
+    implementation("io.github.jan-tennert.supabase:postgrest-kt")
     implementation("io.ktor:ktor-client-android:2.3.4")
-    implementation("io.ktor:ktor-client-content-negotiation:2.3.4")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.4")
-    implementation("io.ktor:ktor-client-logging:2.3.4")
-
 
     // Compose Navegação e Layout
     implementation(libs.androidx.navigation.runtime.android)
-    implementation(libs.androidx.navigation.compose.jvmstubs)
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.foundation.layout.android)
 
     // Ktor

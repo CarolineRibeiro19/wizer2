@@ -25,9 +25,11 @@ fun GroupsScreen(
 
     var showDialog by remember { mutableStateOf(false) }
     var groupCode by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(Unit) {
+    fun loadGroups() {
         scope.launch {
+            loading = true
             try {
                 groups = groupService.getGroupsForUser(userId)
             } catch (e: Exception) {
@@ -38,10 +40,15 @@ fun GroupsScreen(
         }
     }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp)) {
+    LaunchedEffect(Unit) {
+        loadGroups()
+    }
 
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
         Text("Grupos que você participa", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -91,13 +98,28 @@ fun GroupsScreen(
                         onValueChange = { groupCode = it },
                         placeholder = { Text("Ex: GRP123") }
                     )
+                    if (errorMessage != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = errorMessage!!,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
             },
             confirmButton = {
                 TextButton(onClick = {
-                    showDialog = false
-                    println("Código inserido: $groupCode")
-                    groupCode = ""
+                    scope.launch {
+                        val success = groupService.joinGroupWithCode(userId, groupCode.trim())
+                        if (success) {
+                            errorMessage = null
+                            showDialog = false
+                            groupCode = ""
+                            loadGroups()
+                        } else {
+                            errorMessage = "Código inválido ou erro ao entrar no grupo."
+                        }
+                    }
                 }) {
                     Text("Entrar")
                 }
@@ -106,6 +128,7 @@ fun GroupsScreen(
                 TextButton(onClick = {
                     showDialog = false
                     groupCode = ""
+                    errorMessage = null
                 }) {
                     Text("Cancelar")
                 }

@@ -7,7 +7,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
@@ -20,7 +19,6 @@ data class Quiz(
 
 @Composable
 fun QuizzesScreen() {
-    // Simulação de quizzes já respondidos
     val quizzes = listOf(
         Quiz("1", "Quiz de Álgebra", 8, 10),
         Quiz("2", "Quiz de História", 6, 10),
@@ -36,14 +34,19 @@ fun QuizzesScreen() {
                 Icon(Icons.Default.Add, contentDescription = "Adicionar Quiz")
             }
         }
-    ) { padding ->
+    ) { innerPadding ->
+
         Column(
             modifier = Modifier
-                .padding(padding)
-                .padding(16.dp)
                 .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp)
         ) {
-            Text("Quizzes Respondidos", style = MaterialTheme.typography.headlineSmall)
+            Text(
+                text = "Quizzes Respondidos",
+                style = MaterialTheme.typography.headlineSmall
+            )
+
             Spacer(modifier = Modifier.height(16.dp))
 
             LazyColumn {
@@ -64,7 +67,6 @@ fun QuizzesScreen() {
         }
     }
 
-    // Popup de entrada de código do quiz
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
@@ -82,10 +84,10 @@ fun QuizzesScreen() {
             },
             confirmButton = {
                 TextButton(onClick = {
-                    showDialog = false
+                    // Aqui você poderá verificar o código com a Supabase no futuro
                     println("Código inserido: $quizCode")
+                    showDialog = false
                     quizCode = ""
-                    // TODO: verificar código e navegar para o quiz
                 }) {
                     Text("Entrar")
                 }
