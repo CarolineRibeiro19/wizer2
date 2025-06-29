@@ -25,6 +25,17 @@ class QuestionService(private val client: SupabaseClient) {
             .firstOrNull { it.id == id }
     }
 
+    suspend fun getQuestionsByIds(ids: List<String>): List<Question> {
+        return client.from("questions")
+            .select {
+                filter {
+                    "id" in ids
+                }
+            }
+
+            .decodeList<Question>()
+    }
+
     suspend fun updateQuestion(question: Question) {
         client.from("questions")
             .update(question) {

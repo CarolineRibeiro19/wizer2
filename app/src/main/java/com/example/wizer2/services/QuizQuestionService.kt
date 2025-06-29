@@ -19,6 +19,7 @@ class QuizQuestionService(private val client: SupabaseClient) {
             .sortedBy { it.position }
     }
 
+
     suspend fun deleteQuizQuestion(quizId: String, questionId: String) {
         client.from("quiz_question")
             .delete {

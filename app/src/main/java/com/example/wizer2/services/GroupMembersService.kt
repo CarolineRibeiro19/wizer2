@@ -8,8 +8,9 @@ import kotlinx.serialization.json.put
 
 class GroupMembersService(private val client: SupabaseClient) {
 
-    suspend fun addMember(groupMember: GroupMembers) {
+    suspend fun addMember(groupMember: GroupMembers): GroupMembers {
         client.from("group_members").insert(groupMember)
+        return groupMember
     }
 
     suspend fun getMembersByGroup(groupId: String): List<GroupMembers> {

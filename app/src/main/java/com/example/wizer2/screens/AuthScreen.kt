@@ -50,7 +50,7 @@ fun AuthScreen(
     var role by remember { mutableStateOf(Role.STUDENT) }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    // Use LaunchedEffect to react to authState changes
+
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
             onAuthSuccess((authState as AuthState.Success).user)
@@ -58,7 +58,7 @@ fun AuthScreen(
         }
     }
 
-    // Animation states
+
     val animatedOffset by animateFloatAsState(
         targetValue = if (isLogin) 0f else 1f,
         animationSpec = spring(
@@ -81,7 +81,7 @@ fun AuthScreen(
                 )
             )
     ) {
-        // Decorative background elements
+
         FloatingElements()
 
         Column(
@@ -117,7 +117,6 @@ fun AuthScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Welcome Text
             AnimatedContent(
                 targetState = isLogin,
                 transitionSpec = {
@@ -148,7 +147,6 @@ fun AuthScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Main Auth Card
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -174,7 +172,6 @@ fun AuthScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Email Field
                     EnhancedTextField(
                         value = email,
                         onValueChange = { email = it },
@@ -183,7 +180,6 @@ fun AuthScreen(
                         keyboardType = KeyboardType.Email
                     )
 
-                    // Password Field
                     EnhancedTextField(
                         value = password,
                         onValueChange = { password = it },
@@ -194,7 +190,6 @@ fun AuthScreen(
                         onPasswordVisibilityToggle = { passwordVisible = !passwordVisible }
                     )
 
-                    // Registration-only fields
                     AnimatedVisibility(
                         visible = !isLogin,
                         enter = slideInVertically() + fadeIn(),
@@ -217,7 +212,6 @@ fun AuthScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Action Button
                     EnhancedActionButton(
                         text = if (isLogin) "Sign In" else "Create Account",
                         isLoading = authState is AuthState.Loading,
@@ -230,7 +224,7 @@ fun AuthScreen(
                         }
                     )
 
-                    // Error Display
+
                     AnimatedVisibility(
                         visible = authState is AuthState.Error,
                         enter = slideInVertically() + fadeIn(),
@@ -245,7 +239,7 @@ fun AuthScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Switch Mode Button
+
             TextButton(
                 onClick = {
                     isLogin = !isLogin
@@ -389,7 +383,6 @@ private fun TabItem(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EnhancedTextField(
     value: String,

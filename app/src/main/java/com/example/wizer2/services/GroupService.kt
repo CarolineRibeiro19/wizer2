@@ -16,8 +16,9 @@ class GroupService(private val client: SupabaseClient) {
             .filter { it.professorId == professorId }
     }
 
-    suspend fun createGroup(group: Group) {
+    suspend fun createGroup(group: Group): Group {
         client.from("groups").insert(group)
+        return group
     }
 
     suspend fun getGroupById(groupId: String): Group? {
@@ -48,4 +49,21 @@ class GroupService(private val client: SupabaseClient) {
                 }
             }
     }
+
+    suspend fun updateGroup(group: Group): Group {
+        val updateData = buildJsonObject {
+            put("name", group.name)
+            put("subject_id", group.subjectId)
+            put("professor_id", group.professorId)
+        }
+
+        client.from("groups")
+            .update(updateData) {
+                filter {
+                    eq("id", group.id)
+                }
+            }
+        return group
+    }
+
 }

@@ -24,6 +24,13 @@ class QuizSubmissionService(private val client: SupabaseClient) {
             .find { it.userId == userId && it.quizId == quizId }
     }
 
+    suspend fun getSubmissionsByUserId(userId: String): List<QuizSubmission> {
+        return client.from("quiz_submissions")
+            .select()
+            .decodeList<QuizSubmission>()
+            .filter { it.userId == userId }
+    }
+
     suspend fun deleteSubmission(submissionId: String) {
         client.from("quiz_submissions")
             .delete {
