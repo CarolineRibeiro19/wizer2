@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,7 +19,14 @@ import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.auth.Auth
 import com.example.wizer2.screens.AuthScreen
+import com.example.wizer2.screens.CreateQuizScreen
+import com.example.wizer2.screens.EditQuizScreen
 import com.example.wizer2.screens.ProfessorScreen
+import com.example.wizer2.screens.QuizResultsScreen
+import com.example.wizer2.services.QuestionService
+import com.example.wizer2.services.QuizQuestionService
+import com.example.wizer2.services.QuizSubmissionService
+import com.example.wizer2.services.QuizzesService
 
 
 class MainActivity : ComponentActivity() {
@@ -32,6 +40,11 @@ class MainActivity : ComponentActivity() {
         }
 
         val userService = UserService(supabaseclient)
+        val quizzesService = QuizzesService(supabaseclient)
+        val questionService = QuestionService(supabaseclient)
+        val quizQuestionService = QuizQuestionService(supabaseclient)
+        val quizSubmissionService = QuizSubmissionService(supabaseclient)
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
@@ -43,7 +56,7 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             startDestination = "auth",
                             modifier = Modifier.padding(innerPadding)
-                        ) {
+                        ) {//
                             composable("auth") {
                                 AuthScreen(
                                     userService = userService,
@@ -63,8 +76,21 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                             }
+                            // TODO: Integrar pra navegar entre as telas
                             composable("professor") {
-                                ProfessorScreen()
+                                //ProfessorScreen()
+                            }
+
+                            composable("create_quiz") {
+                                //CreateQuizScreen()
+                            }
+                            composable("edit_quiz/{quizId}") { backStackEntry ->
+                                val quizId = backStackEntry.arguments?.getString("quizId") ?: ""
+                                //EditQuizScreen(quizId = quizId)
+                            }
+                            composable("quiz_results/{quizId}") { backStackEntry ->
+                                val quizId = backStackEntry.arguments?.getString("quizId") ?: ""
+                                //QuizResultsScreen(quizId = quizId)
                             }
                         }
                     }

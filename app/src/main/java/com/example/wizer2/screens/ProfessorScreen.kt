@@ -25,11 +25,22 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wizer2.models.*
+import com.example.wizer2.services.QuestionService
+import com.example.wizer2.services.QuizQuestionService
+import com.example.wizer2.services.QuizSubmissionService
+import com.example.wizer2.services.QuizzesService
+import com.example.wizer2.vmodels.QuizViewModel
+import com.example.wizer2.vmodels.QuizViewModelFactory
+import io.github.jan.supabase.SupabaseClient
 
 @Composable
-fun ProfessorScreen() {
-    var selectedTab by remember { mutableStateOf(1) } // Start with Home tab
+fun ProfessorScreen(supabaseClient: SupabaseClient) {
+    // TODO: Integrar as Telas de QUIz AQ
+
+
+    var selectedTab by remember { mutableStateOf(1) }
 
     Scaffold(
         bottomBar = {
@@ -56,20 +67,22 @@ fun ProfessorScreen() {
         }
     ) { paddingValues ->
         when (selectedTab) {
-            0 -> QuizScreen(modifier = Modifier.padding(paddingValues))
+            0 -> QuizScreen(
+                modifier = Modifier.padding(paddingValues),
+                viewModel = quizViewModel
+            )
             1 -> HomeScreen(modifier = Modifier.padding(paddingValues))
             2 -> GroupsScreen(modifier = Modifier.padding(paddingValues))
         }
     }
 }
 
+
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
     // MOCKED DATA - Home screen statistics and recent activity
     val totalStudents = 142
-    val activeQuizzes = mockQuizzes.size
     val totalGroups = mockGroups.size
-    val recentQuizzes = mockQuizzes.take(3)
     val topPerformingGroups = mockGroups.take(2)
 
     LazyColumn(
@@ -100,7 +113,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 )
                 StatCard(
                     title = "Active Quizzes",
-                    value = activeQuizzes.toString(),
+                    value = "20",
                     icon = Icons.Default.List,
                     color = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.weight(1f)
@@ -127,9 +140,9 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(recentQuizzes) { quiz ->
+                /*items(recentQuizzes) { quiz ->
                     QuizCard(quiz = quiz)
-                }
+                }*/
             }
         }
 

@@ -40,24 +40,19 @@ class GroupViewModel(
     private val _uiState = MutableStateFlow(GroupUiState())
     val uiState: StateFlow<GroupUiState> = _uiState.asStateFlow()
 
-    // Current user ID flow (set this from your authentication logic)
     private val _currentUserId = MutableStateFlow<String?>(null)
     val currentUserId: StateFlow<String?> = _currentUserId.asStateFlow()
 
-    // This will now hold ONLY the groups where the current user is the professor
     private val _professorGroups = MutableStateFlow<List<Group>>(emptyList())
 
-    // This will hold all group members relevant to the _professorGroups
     private val _groupMembersForProfessorGroups = MutableStateFlow<List<GroupMembers>>(emptyList())
     val groupMembers: StateFlow<List<GroupMembers>> = _groupMembersForProfessorGroups.asStateFlow()
 
     private val _subjects = MutableStateFlow<List<Subject>>(emptyList())
     val subjects: StateFlow<List<Subject>> = _subjects.asStateFlow()
 
-    // The 'groups' flow is now directly derived from _professorGroups
     val groups: StateFlow<List<Group>> = _professorGroups.asStateFlow()
 
-    // Combined flow for groups with their details, only for professor's groups
     val groupsWithDetails: StateFlow<List<GroupWithDetails>> = combine(
         _professorGroups, // Use the _professorGroups as the primary source
         _groupMembersForProfessorGroups, // Use members relevant to these groups
@@ -85,8 +80,6 @@ class GroupViewModel(
     )
 
     init {
-        // loadAllData() will be called once currentUserId is set
-        // Or you can call it after setting currentUserId if it's available early
         viewModelScope.launch {
             _currentUserId.collect { userId ->
                 if (userId != null) {
@@ -96,9 +89,7 @@ class GroupViewModel(
         }
     }
 
-    /**
-     * Sets the ID of the current logged-in user. Call this after successful authentication.
-     */
+
     fun setCurrentUserId(userId: String) {
         if (_currentUserId.value != userId) {
             _currentUserId.value = userId
