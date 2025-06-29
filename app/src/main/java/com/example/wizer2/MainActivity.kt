@@ -1,6 +1,7 @@
 package com.example.wizer2
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -20,19 +21,26 @@ import io.github.jan.supabase.auth.Auth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        val supabaseClient = createSupabaseClient(
-            supabaseUrl = "https://jqibivtfpbrzvtcprtsw.supabase.co",
-            supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxaWJpdnRmcGJyenZ0Y3BydHN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4MDI0OTEsImV4cCI6MjA2NjM3ODQ5MX0.isV9ifBmL4GOv49fqvM9WGwtbzOaTWvUA29Eh8EGcIg"
-        ) {
-            install(Postgrest)
-            install(Auth)
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+
+        Log.d("MainActivity", "Iniciando SupabaseClient...")
+
+        val supabaseClient = try {
+            createSupabaseClient(
+                supabaseUrl = "https://jqibivtfpbrzvtcprtsw.supabase.co",
+                supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxaWJpdnRmcGJyenZ0Y3BydHN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4MDI0OTEsImV4cCI6MjA2NjM3ODQ5MX0.isV9ifBmL4GOv49fqvM9WGwtbzOaTWvUA29Eh8EGcIg"
+            ) {
+                install(Postgrest)
+                install(Auth)
+            }
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Erro ao criar SupabaseClient", e)
+            throw e
         }
 
         val userService = UserService(supabaseClient)
         val groupService = SupabaseGroupService(supabaseClient)
-
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
 
         setContent {
             Wizer2Theme {
@@ -54,8 +62,7 @@ class MainActivity : ComponentActivity() {
                         if (isStudent) {
                             StudentMainScreen(groupService = groupService)
                         } else {
-                            // Futuramente: outra tela para professores ou admin
-                            Text("Usuário com role '${if (isStudent) "student" else "outro"}' autenticado.")
+                            println("Não existe tela para o role teacher")
                         }
                     }
                 }
