@@ -106,6 +106,7 @@ fun AuthScreen(
             is AuthState.Error -> Text(text = (authState as AuthState.Error).message, color = Color.Red)
             // AuthState.Success is handled by LaunchedEffect
             else -> {}
+
         }
     }
 }
