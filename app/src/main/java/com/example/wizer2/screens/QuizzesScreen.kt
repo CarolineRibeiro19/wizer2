@@ -41,6 +41,9 @@ fun QuizzesScreen(
     }
 
     Scaffold(
+        topBar = {
+            TopAppBar(title = { Text("Quizzes") })
+        },
         floatingActionButton = {
             FloatingActionButton(onClick = { showDialog = true }) {
                 Icon(Icons.Default.Add, contentDescription = "Inserir código do quiz")
@@ -53,9 +56,7 @@ fun QuizzesScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
-
             Text("Quizzes Respondidos", style = MaterialTheme.typography.headlineSmall)
-
             Spacer(modifier = Modifier.height(16.dp))
 
             if (loading) {
@@ -64,19 +65,33 @@ fun QuizzesScreen(
                 }
             } else {
                 if (submissions.isEmpty()) {
-                    Text("Você ainda não respondeu nenhum quiz.")
+                    Text("📭 Você ainda não respondeu nenhum quiz.")
                 } else {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
                         contentPadding = PaddingValues(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxSize()
                     ) {
                         items(submissions) { submission ->
-                            Card(modifier = Modifier.fillMaxWidth()) {
-                                Column(modifier = Modifier.padding(12.dp)) {
-                                    Text("Quiz ID: ${submission.quizId}", style = MaterialTheme.typography.titleMedium)
-                                    Text("Nota: ${submission.score}", style = MaterialTheme.typography.bodyMedium)
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(100.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                )
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(12.dp),
+                                    verticalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text("📘 Quiz", style = MaterialTheme.typography.titleMedium)
+                                    Text("ID: ${submission.quizId.take(6)}...", style = MaterialTheme.typography.bodySmall)
+                                    Text("Nota: ${submission.score} ⭐", style = MaterialTheme.typography.bodyMedium)
                                 }
                             }
                         }
@@ -93,7 +108,8 @@ fun QuizzesScreen(
                     OutlinedTextField(
                         value = quizCode,
                         onValueChange = { quizCode = it },
-                        placeholder = { Text("Código do quiz") }
+                        placeholder = { Text("Ex: QUIZ123") },
+                        modifier = Modifier.fillMaxWidth()
                     )
                 },
                 confirmButton = {
@@ -117,10 +133,3 @@ fun QuizzesScreen(
         }
     }
 }
-
-
-
-
-
-
-
