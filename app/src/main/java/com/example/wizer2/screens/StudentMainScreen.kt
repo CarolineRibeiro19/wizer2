@@ -14,6 +14,7 @@ import com.example.wizer2.services.GroupService
 import com.example.wizer2.services.QuizSubmissionService
 import com.example.wizer2.services.QuizzesService
 import com.example.wizer2.services.UserService
+import com.example.wizer2.services.QuestionService
 
 @Composable
 fun StudentMainScreen(
