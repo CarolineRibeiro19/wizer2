@@ -39,42 +39,55 @@ fun ExercisesScreen(
             CircularProgressIndicator()
         }
     } else {
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)) {
-
-            Text("Random Exercises", style = MaterialTheme.typography.headlineSmall)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp)
+        ) {
+            Text(
+                "🧠 Random Exercises",
+                style = MaterialTheme.typography.headlineSmall
+            )
             Spacer(modifier = Modifier.height(16.dp))
 
-            LazyColumn(modifier = Modifier.weight(1f)) {
-                items(questions) { question ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(question.text, style = MaterialTheme.typography.titleMedium)
-                            Spacer(modifier = Modifier.height(8.dp))
-                            question.options.forEachIndexed { index, option ->
-                                Text("• $option")
+            if (questions.isEmpty()) {
+                Text("Nenhum exercício encontrado para esta matéria.")
+            } else {
+                LazyColumn(modifier = Modifier.weight(1f)) {
+                    items(questions) { question ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(
+                                    text = question.text,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                question.options.forEachIndexed { index, option ->
+                                    Text("• $option", style = MaterialTheme.typography.bodyMedium)
+                                }
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Text(
+                                    "✔ Correct Answer: ${question.options[question.correctIndex]}",
+                                    color = MaterialTheme.colorScheme.primary,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
                             }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                "✔ Correct Answer: ${question.options[question.correctIndex]}",
-                                color = MaterialTheme.colorScheme.primary
-                            )
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = onBack,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
-                Text("Back")
+                Text("⬅ Back")
             }
         }
     }
