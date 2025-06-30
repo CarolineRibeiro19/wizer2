@@ -1,21 +1,22 @@
 package com.example.wizer2.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wizer2.models.Role
 import com.example.wizer2.models.User
 import com.example.wizer2.services.UserService
 import com.example.wizer2.vmodels.AuthState
 import com.example.wizer2.vmodels.AuthViewModel
 import com.example.wizer2.vmodels.AuthViewModelFactory
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun AuthScreen(
@@ -32,80 +33,110 @@ fun AuthScreen(
     var username by remember { mutableStateOf("") }
     var role by remember { mutableStateOf(Role.STUDENT) }
 
-    // Use LaunchedEffect to react to authState changes
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
             onAuthSuccess((authState as AuthState.Success).user)
-            authViewModel.resetAuthState() // Reset state after success to avoid re-triggering
+            authViewModel.resetAuthState()
         }
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(text = if (isLogin) "Login" else "Register", style = MaterialTheme.typography.headlineMedium)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        if (!isLogin) {
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = username,
-                onValueChange = { username = it },
-                label = { Text("Username") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            DropdownMenuWithRoles(selectedRole = role, onRoleSelected = { role = it })
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                if (isLogin) {
-                    authViewModel.login(email, password)
-                } else {
-                    authViewModel.register(email, password, username, role)
-                }
-            },
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Card(
+            shape = RoundedCornerShape(16.dp),
             modifier = Modifier.fillMaxWidth(),
-            enabled = authState !is AuthState.Loading // Disable button during loading
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            elevation = CardDefaults.cardElevation(8.dp)
         ) {
-            if (authState is AuthState.Loading) {
-                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-            } else {
-                Text(text = if (isLogin) "Login" else "Register")
+            Column(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = if (isLogin) "Welcome Back 👋" else "Create an Account",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                if (!isLogin) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = username,
+                        onValueChange = { username = it },
+                        label = { Text("Username") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    DropdownMenuWithRoles(selectedRole = role, onRoleSelected = { role = it })
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Button(
+                    onClick = {
+                        if (isLogin) {
+                            authViewModel.login(email, password)
+                        } else {
+                            authViewModel.register(email, password, username, role)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = authState !is AuthState.Loading
+                ) {
+                    if (authState is AuthState.Loading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    } else {
+                        Text(if (isLogin) "Login" else "Register")
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                TextButton(
+                    onClick = {
+                        isLogin = !isLogin
+                        authViewModel.resetAuthState()
+                    },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text(
+                        text = if (isLogin) "Don't have an account? Register" else "Already have an account? Login"
+                    )
+                }
+
+                if (authState is AuthState.Error) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = (authState as AuthState.Error).message,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        TextButton(onClick = {
-            isLogin = !isLogin
-            authViewModel.resetAuthState()
-        }) {
-            Text(text = if (isLogin) "Don't have an account? Register" else "Already have an account? Login")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        when (authState) {
-            is AuthState.Error -> Text(text = (authState as AuthState.Error).message, color = Color.Red)
-            // AuthState.Success is handled by LaunchedEffect
-            else -> {}
         }
     }
 }
@@ -114,7 +145,10 @@ fun AuthScreen(
 fun DropdownMenuWithRoles(selectedRole: Role, onRoleSelected: (Role) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
 
-    Box(modifier = Modifier.fillMaxWidth()) {
+    Column {
+        Text("Select Role", style = MaterialTheme.typography.labelLarge)
+        Spacer(modifier = Modifier.height(4.dp))
+
         Button(
             onClick = { expanded = true },
             modifier = Modifier.fillMaxWidth()
@@ -124,14 +158,16 @@ fun DropdownMenuWithRoles(selectedRole: Role, onRoleSelected: (Role) -> Unit) {
 
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.fillMaxWidth()
+            onDismissRequest = { expanded = false }
         ) {
             Role.entries.forEach { role ->
-                DropdownMenuItem(text = { Text(role.name) }, onClick = {
-                    onRoleSelected(role)
-                    expanded = false
-                })
+                DropdownMenuItem(
+                    text = { Text(role.name) },
+                    onClick = {
+                        onRoleSelected(role)
+                        expanded = false
+                    }
+                )
             }
         }
     }
