@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 data class GroupMembers(
     @SerialName("group_id") val groupId: String,
     @SerialName("user_id") val userId: String,
-    val points: Int
+    val points: Int = 0
 )

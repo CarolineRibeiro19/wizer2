@@ -1,7 +1,6 @@
 package com.example.wizer2.screens
 
 import androidx.compose.runtime.Composable
-
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -9,7 +8,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBar
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -33,13 +31,21 @@ import com.example.wizer2.services.QuizSubmissionService
 import com.example.wizer2.services.QuizzesService
 import com.example.wizer2.vmodels.QuizViewModel
 import com.example.wizer2.vmodels.QuizViewModelFactory
+import com.example.wizer2.vmodels.GroupViewModel
+import com.example.wizer2.vmodels.GroupViewModelFactory
 import io.github.jan.supabase.SupabaseClient
 
 @Composable
-fun ProfessorScreen(supabaseClient: SupabaseClient) {
-    // TODO: Integrar as Telas de QUIz AQ
-
-
+fun ProfessorScreen(    supabaseClient: SupabaseClient,
+                        quizViewModel: QuizViewModel,
+                        groupViewModel: GroupViewModel,
+                        onCreateQuiz: () -> Unit = {},
+                        onEditQuiz: (String) -> Unit = {},
+                        onViewQuizResults: (String) -> Unit = {},
+                        onCreateGroup: () -> Unit = {},
+                        onEditGroup: (String) -> Unit = {},
+                        onViewGroupDetails: (String) -> Unit = {}
+) {
     var selectedTab by remember { mutableStateOf(1) }
 
     Scaffold(
@@ -64,15 +70,21 @@ fun ProfessorScreen(supabaseClient: SupabaseClient) {
                     onClick = { selectedTab = 2 }
                 )
             }
-        }
-    ) { paddingValues ->
+        }    ) { paddingValues ->
         when (selectedTab) {
             0 -> QuizScreen(
-                modifier = Modifier.padding(paddingValues),
-                viewModel = quizViewModel
-            )
-            1 -> HomeScreen(modifier = Modifier.padding(paddingValues))
-            2 -> GroupsScreen(modifier = Modifier.padding(paddingValues))
+                viewModel = quizViewModel,
+                onCreateQuiz = onCreateQuiz,
+                onEditQuiz = onEditQuiz,
+                onViewQuizResults = onViewQuizResults,
+                modifier = Modifier.padding(paddingValues)
+            )            1 -> HomeScreen(modifier = Modifier.padding(paddingValues))            2 -> GroupsScreen(
+            viewModel = groupViewModel,
+            onCreateGroup = onCreateGroup,
+            onEditGroup = onEditGroup,
+            onViewGroupDetails = onViewGroupDetails,
+            modifier = Modifier.padding(paddingValues)
+        )
         }
     }
 }
@@ -153,9 +165,21 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 fontWeight = FontWeight.SemiBold
             )
         }
-
         items(topPerformingGroups) { group ->
-            GroupPerformanceCard(group = group)
+            // TODO: Implement GroupPerformanceCard
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = group.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
         }
 
         item {

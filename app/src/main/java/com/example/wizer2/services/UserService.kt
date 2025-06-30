@@ -161,8 +161,37 @@ class UserService(
             e.printStackTrace()
             null
         }
+    }    suspend fun getUserByEmail(email: String): User? {
+        return try {
+            val users = postgrest.from("profiles")
+                .select {
+                    filter {
+                        eq("email", email)
+                    }
+                }
+                .decodeList<User>()
+            users.firstOrNull()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 
+    suspend fun getUserById(userId: String): User? {
+        return try {
+            val users = postgrest.from("profiles")
+                .select{
+                    filter {
+                        eq("id", userId)
+                    }
+                }
+                .decodeList<User>()
+            users.firstOrNull()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
 
     fun isAuthenticated(): Boolean {
         return auth.currentUserOrNull() != null
