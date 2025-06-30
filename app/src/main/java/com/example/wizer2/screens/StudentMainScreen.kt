@@ -27,8 +27,8 @@ fun StudentMainScreen(
     val navController = rememberNavController()
     val tabs = listOf(
         ScreenItem("quizzes", Icons.Default.List),
-        ScreenItem("groups", Icons.Default.Home),
-        ScreenItem("profile", Icons.Default.AccountCircle)
+        ScreenItem("grupos", Icons.Default.Home),
+        ScreenItem("perfil", Icons.Default.AccountCircle)
     )
 
     Scaffold(
