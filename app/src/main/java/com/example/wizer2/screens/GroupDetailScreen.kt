@@ -75,11 +75,14 @@ fun GroupDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Button(onClick = { /* Navegar para exercícios */ }) {
-                        Text("Exercises")
+                    Button(onClick = {
+                        navController.navigate("exercises/${group.subjectId}")
+                    }) {
+                        Text("Exercícios")
                     }
+
                     Button(onClick = { /* Navegar para reuniões */ }) {
-                        Text("Meetings")
+                        Text("Reuniões")
                     }
                 }
             }
