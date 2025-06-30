@@ -74,9 +74,8 @@ fun CreateQuizScreen(
     }
 
     // Handle quiz creation success
-    LaunchedEffect(quizState.quizzes) {
-        if (!quizState.isLoading && quizState.error == null) {
-            // Quiz was created successfully, navigate back
+    LaunchedEffect(quizState.isLoading, quizState.error) {
+        if (!quizState.isLoading && quizState.error == null && quizState.quizzes.isNotEmpty()) {
             onQuizCreated()
         }
     }
@@ -214,7 +213,6 @@ fun CreateQuizScreen(
                                 subjectError = subjectErr
                                 codeError = codeErr
                             }) {
-
                             val newQuiz = Quizzes(
                                 id = UUID.randomUUID().toString(),
                                 subjectId = subjectId.trim(),
@@ -223,7 +221,6 @@ fun CreateQuizScreen(
                                 createdBy = professorId,
                                 maxScore = maxScore
                             )
-
                             viewModel.createQuiz(newQuiz)
                         }
                     },
@@ -241,29 +238,6 @@ fun CreateQuizScreen(
                             Text("Create Quiz")
                         }
                     }
-                }
-            }
-
-            // Instructions
-            Card {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Text(
-                        text = "Next Steps",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "After creating the quiz, you can:\n" +
-                                "• Add questions to your quiz\n" +
-                                "• Set quiz timing and availability\n" +
-                                "• Share the quiz code with students\n" +
-                                "• Monitor quiz submissions and results",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
             }
         }

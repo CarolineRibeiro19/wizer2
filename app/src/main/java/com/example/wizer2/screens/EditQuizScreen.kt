@@ -74,11 +74,6 @@ fun EditQuizScreen(
     // Dialog state
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    // Validation states
-    var titleError by remember { mutableStateOf("") }
-    var subjectError by remember { mutableStateOf("") }
-    var codeError by remember { mutableStateOf("") }
-
     // Load quiz data when screen opens
     LaunchedEffect(quizId) {
         viewModel.selectQuiz(quizId)
@@ -125,223 +120,106 @@ fun EditQuizScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
-        when {
-            quizState.isLoading && !isFormInitialized -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CircularProgressIndicator()
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text("Loading quiz...")
-                    }
-                }
-            }
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = "Edit Quiz Information",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.SemiBold
+            )
 
-            quizState.selectedQuiz == null && !quizState.isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "Quiz not found",
-                            style = MaterialTheme.typography.headlineSmall
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = onNavigateBack) {
-                            Text("Go Back")
-                        }
-                    }
-                }
-            }
-
-            else -> {
+            Card {
                 Column(
-                    modifier = modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .padding(16.dp)
-                        .verticalScroll(rememberScrollState()),
+                    modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(
-                        text = "Edit Quiz Information",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.SemiBold
+                    // Quiz Title
+                    OutlinedTextField(
+                        value = title,
+                        onValueChange = { title = it },
+                        label = { Text("Quiz Title") },
+                        modifier = Modifier.fillMaxWidth()
                     )
 
-                    Card {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            // Quiz Title
-                            OutlinedTextField(
-                                value = title,
-                                onValueChange = {
-                                    title = it
-                                    titleError = ""
-                                },
-                                label = { Text("Quiz Title") },
-                                placeholder = { Text("Enter quiz title") },
-                                isError = titleError.isNotEmpty(),
-                                supportingText = if (titleError.isNotEmpty()) {
-                                    { Text(titleError) }
-                                } else null,
-                                modifier = Modifier.fillMaxWidth(),
-                                leadingIcon = {
-                                    Icon(Icons.Default.Edit, contentDescription = null)
-                                }
+                    // Subject ID
+                    OutlinedTextField(
+                        value = subjectId,
+                        onValueChange = { subjectId = it },
+                        label = { Text("Subject") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Quiz Code
+                    OutlinedTextField(
+                        value = code,
+                        onValueChange = { code = it.uppercase() },
+                        label = { Text("Quiz Code") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Max Score
+                    OutlinedTextField(
+                        value = maxScore.toString(),
+                        onValueChange = {
+                            it.toIntOrNull()?.let { score -> maxScore = score }
+                        },
+                        label = { Text("Maximum Score") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                OutlinedButton(
+                    onClick = onNavigateBack,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Cancel")
+                }
+
+                Button(
+                    onClick = {
+                        quizState.selectedQuiz?.let { currentQuiz ->
+                            val updatedQuiz = currentQuiz.copy(
+                                title = title.trim(),
+                                subjectId = subjectId.trim(),
+                                code = code.trim(),
+                                maxScore = maxScore
                             )
-
-                            // Subject ID
-                            OutlinedTextField(
-                                value = subjectId,
-                                onValueChange = {
-                                    subjectId = it
-                                    subjectError = ""
-                                },
-                                label = { Text("Subject") },
-                                placeholder = { Text("e.g., MATH101, CS201") },
-                                isError = subjectError.isNotEmpty(),
-                                supportingText = if (subjectError.isNotEmpty()) {
-                                    { Text(subjectError) }
-                                } else null,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            // Quiz Code
-                            OutlinedTextField(
-                                value = code,
-                                onValueChange = {
-                                    code = it.uppercase()
-                                    codeError = ""
-                                },
-                                label = { Text("Quiz Code") },
-                                placeholder = { Text("Unique quiz code") },
-                                isError = codeError.isNotEmpty(),
-                                supportingText = if (codeError.isNotEmpty()) {
-                                    { Text(codeError) }
-                                } else {
-                                    { Text("Students use this code to join the quiz") }
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            // Max Score
-                            OutlinedTextField(
-                                value = maxScore.toString(),
-                                onValueChange = {
-                                    it.toIntOrNull()?.let { score ->
-                                        if (score >= 0) maxScore = score
-                                    }
-                                },
-                                label = { Text("Maximum Score") },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                modifier = Modifier.fillMaxWidth()
-                            )
+                            viewModel.createQuiz(updatedQuiz)
+                            onQuizUpdated()
                         }
-                    }
-
-                    // Quiz Statistics (if available)
-                    quizState.selectedQuiz?.let { quiz ->
-                        Card {
-                            Column(
-                                modifier = Modifier.padding(16.dp)
-                            ) {
-                                Text(
-                                    text = "Quiz Statistics",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = "Quiz ID: ${quiz.id}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    text = "Created by: ${quiz.createdBy}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Action Buttons
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        OutlinedButton(
-                            onClick = onNavigateBack,
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Cancel")
-                        }
-
-                        Button(
-                            onClick = {
-                                if (validateForm(title, subjectId, code) { titleErr, subjectErr, codeErr ->
-                                        titleError = titleErr
-                                        subjectError = subjectErr
-                                        codeError = codeErr
-                                    }) {
-
-                                    quizState.selectedQuiz?.let { currentQuiz ->
-                                        val updatedQuiz = currentQuiz.copy(
-                                            title = title.trim(),
-                                            subjectId = subjectId.trim(),
-                                            code = code.trim(),
-                                            maxScore = maxScore
-                                        )
-
-                                        // Note: You'll need to add an updateQuiz method to your ViewModel
-                                        // viewModel.updateQuiz(updatedQuiz)
-
-                                        // For now, we'll just show success and navigate back
-                                        onQuizUpdated()
-                                    }
-                                }
-                            },
-                            enabled = !quizState.isLoading,
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            if (quizState.isLoading) {
-                                Text("Updating...")
-                            } else {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Icon(Icons.Default.CheckCircle, contentDescription = null)
-                                    Text("Save Changes")
-                                }
-                            }
-                        }
+                    },
+                    enabled = !quizState.isLoading,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    if (quizState.isLoading) {
+                        Text("Updating...")
+                    } else {
+                        Text("Save Changes")
                     }
                 }
             }
         }
     }
 
-    // Delete Confirmation Dialog
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
             title = { Text("Delete Quiz") },
-            text = {
-                Text("Are you sure you want to delete this quiz? This action cannot be undone and will also delete all associated questions and submissions.")
-            },
+            text = { Text("Are you sure you want to delete this quiz?") },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -354,9 +232,7 @@ fun EditQuizScreen(
                 }
             },
             dismissButton = {
-                TextButton(
-                    onClick = { showDeleteDialog = false }
-                ) {
+                TextButton(onClick = { showDeleteDialog = false }) {
                     Text("Cancel")
                 }
             }

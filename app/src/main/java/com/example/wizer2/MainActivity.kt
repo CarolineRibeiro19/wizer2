@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -27,6 +28,8 @@ import com.example.wizer2.services.QuestionService
 import com.example.wizer2.services.QuizQuestionService
 import com.example.wizer2.services.QuizSubmissionService
 import com.example.wizer2.services.QuizzesService
+import com.example.wizer2.vmodels.QuizViewModel
+import com.example.wizer2.vmodels.QuizViewModelFactory
 
 
 class MainActivity : ComponentActivity() {
@@ -48,50 +51,67 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            setContent {
-                val navController = rememberNavController()
-                Wizer2Theme {
-                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                        NavHost(
-                            navController = navController,
-                            startDestination = "auth",
-                            modifier = Modifier.padding(innerPadding)
-                        ) {//
-                            composable("auth") {
-                                AuthScreen(
-                                    userService = userService,
-                                    onAuthSuccess = { user ->
-                                        println("Authentication successful for user: ${user.email}, Role: ${user.role}")
-                                        when (user.role.uppercase()) {
-                                            "TEACHER" -> {
-                                                navController.navigate("professor") {
-                                                    popUpTo("auth") { inclusive = true }
-                                                }
-                                            }
-                                            "STUDENT" -> {
-                                                // navigate to student screen if you want
-                                            }
+            val navController = rememberNavController()
+            val quizViewModelFactory = QuizViewModelFactory(
+                quizzesService = quizzesService,
+                questionService = questionService,
+                quizQuestionService = quizQuestionService,
+                quizSubmissionService = quizSubmissionService
+            )
+            val quizViewModel: QuizViewModel = viewModel(factory = quizViewModelFactory)
 
+            Wizer2Theme {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    NavHost(
+                        navController = navController,
+                        startDestination = "auth",
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
+                        composable("auth") {
+                            AuthScreen(
+                                userService = userService,
+                                onAuthSuccess = { user ->
+                                    when (user.role.uppercase()) {
+                                        "TEACHER" -> navController.navigate("professor") {
+                                            popUpTo("auth") { inclusive = true }
                                         }
+                                        "STUDENT" -> { /* Navigate to student screen */ }
                                     }
-                                )
-                            }
-                            // TODO: Integrar pra navegar entre as telas
-                            composable("professor") {
-                                //ProfessorScreen()
-                            }
-
-                            composable("create_quiz") {
-                                //CreateQuizScreen()
-                            }
-                            composable("edit_quiz/{quizId}") { backStackEntry ->
-                                val quizId = backStackEntry.arguments?.getString("quizId") ?: ""
-                                //EditQuizScreen(quizId = quizId)
-                            }
-                            composable("quiz_results/{quizId}") { backStackEntry ->
-                                val quizId = backStackEntry.arguments?.getString("quizId") ?: ""
-                                //QuizResultsScreen(quizId = quizId)
-                            }
+                                }
+                            )
+                        }
+                        composable("professor") {
+                            ProfessorScreen(
+                                viewModel = quizViewModel,
+                                onNavigateToCreateQuiz = { navController.navigate("create_quiz") },
+                                onNavigateToEditQuiz = { quizId -> navController.navigate("edit_quiz/$quizId") },
+                                onNavigateToQuizResults = { quizId -> navController.navigate("quiz_results/$quizId") }
+                            )
+                        }
+                        composable("create_quiz") {
+                            CreateQuizScreen(
+                                viewModel = quizViewModel,
+                                onNavigateBack = { navController.popBackStack() },
+                                onQuizCreated = { navController.navigate("professor") }
+                            )
+                        }
+                        composable("edit_quiz/{quizId}") { backStackEntry ->
+                            val quizId = backStackEntry.arguments?.getString("quizId") ?: ""
+                            EditQuizScreen(
+                                quizId = quizId,
+                                viewModel = quizViewModel,
+                                onNavigateBack = { navController.popBackStack() },
+                                onQuizUpdated = { navController.navigate("professor") },
+                                onQuizDeleted = { navController.navigate("professor") }
+                            )
+                        }
+                        composable("quiz_results/{quizId}") { backStackEntry ->
+                            val quizId = backStackEntry.arguments?.getString("quizId") ?: ""
+                            QuizResultsScreen(
+                                quizId = quizId,
+                                viewModel = quizViewModel,
+                                onNavigateBack = { navController.popBackStack() }
+                            )
                         }
                     }
                 }
@@ -99,5 +119,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 
 

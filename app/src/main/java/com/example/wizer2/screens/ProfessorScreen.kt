@@ -36,10 +36,13 @@ import com.example.wizer2.vmodels.QuizViewModelFactory
 import io.github.jan.supabase.SupabaseClient
 
 @Composable
-fun ProfessorScreen(supabaseClient: SupabaseClient) {
-    // TODO: Integrar as Telas de QUIz AQ
-
-
+fun ProfessorScreen(
+    viewModel: QuizViewModel,
+    onNavigateToCreateQuiz: () -> Unit,
+    onNavigateToEditQuiz: (String) -> Unit,
+    onNavigateToQuizResults: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     var selectedTab by remember { mutableStateOf(1) }
 
     Scaffold(
@@ -69,17 +72,27 @@ fun ProfessorScreen(supabaseClient: SupabaseClient) {
         when (selectedTab) {
             0 -> QuizScreen(
                 modifier = Modifier.padding(paddingValues),
-                viewModel = quizViewModel
+                viewModel = viewModel,
+                onCreateQuiz = onNavigateToCreateQuiz,
+                onEditQuiz = onNavigateToEditQuiz,
+                onViewQuizResults = onNavigateToQuizResults
             )
-            1 -> HomeScreen(modifier = Modifier.padding(paddingValues))
+            1 -> HomeScreen(
+                modifier = Modifier.padding(paddingValues),
+                onNavigateToCreateQuiz = onNavigateToCreateQuiz
+            )
+
             2 -> GroupsScreen(modifier = Modifier.padding(paddingValues))
         }
     }
 }
 
-
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    onNavigateToCreateQuiz: () -> Unit
+)
+ {
     // MOCKED DATA - Home screen statistics and recent activity
     val totalStudents = 142
     val totalGroups = mockGroups.size
@@ -140,9 +153,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                /*items(recentQuizzes) { quiz ->
-                    QuizCard(quiz = quiz)
-                }*/
+                // Add recent quizzes here
             }
         }
 
@@ -159,52 +170,13 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         }
 
         item {
-            QuickActionsSection()
+            QuickActionsSection(onNavigateToCreateQuiz = onNavigateToCreateQuiz)
         }
     }
 }
 
 @Composable
-fun StatCard(
-    title: String,
-    value: String,
-    icon: ImageVector,
-    color: Color,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.1f))
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(32.dp)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = value,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = color
-            )
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
-
-
-@Composable
-fun QuickActionsSection() {
+fun QuickActionsSection(onNavigateToCreateQuiz: () -> Unit) {
     Column {
         Text(
             text = "Quick Actions",
@@ -217,7 +189,7 @@ fun QuickActionsSection() {
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Button(
-                onClick = { /* Navigate to create quiz */ },
+                onClick = onNavigateToCreateQuiz,
                 modifier = Modifier.weight(1f)
             ) {
                 Icon(Icons.Default.Add, contentDescription = null)
@@ -232,6 +204,47 @@ fun QuickActionsSection() {
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Analytics")
             }
+        }
+    }
+}
+
+@Composable
+fun StatCard(
+    title: String,
+    value: String,
+    icon: ImageVector,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(containerColor = color)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(32.dp)
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
