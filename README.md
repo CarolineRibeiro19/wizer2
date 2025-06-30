@@ -61,14 +61,19 @@ git checkout wizer_final_version
 
 # 5. Press Run (Shift + F10) or use the ▶️ Run button in Android Studio
 
-### 📱 Sensor/Device Integration
+---
 
-This app currently does not require any physical sensors (e.g. accelerometer, GPS, etc.). All features are accessed via touch and require internet connectivity.
+## 📱 Sensor Integration
 
-### Authors
+This app currently does **not** require any physical sensors (e.g. accelerometer, GPS, etc.).  
+All features are accessed via touch and require internet connectivity.
 
-- Caroline Ribeiro
-- Mateus da Fonte
+---
+
+## 👨‍💻 Authors
+
+- Caroline Ribeiro  
+- Mateus da Fonte  
 - Victor Milhomem
 
 
