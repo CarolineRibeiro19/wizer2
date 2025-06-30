@@ -32,7 +32,7 @@ fun ProfileScreen(
                 username = user.username
                 email = user.email
             } else {
-                errorMessage = "Erro ao carregar usuário"
+                errorMessage = "Failed to load user data."
             }
             loading = false
         }
@@ -41,12 +41,13 @@ fun ProfileScreen(
     if (showEditDialog) {
         AlertDialog(
             onDismissRequest = { showEditDialog = false },
-            title = { Text("Editar nome de usuário") },
+            title = { Text("Edit Username") },
             text = {
                 OutlinedTextField(
                     value = newUsername,
                     onValueChange = { newUsername = it },
-                    label = { Text("Novo nome de usuário") }
+                    label = { Text("New Username") },
+                    modifier = Modifier.fillMaxWidth()
                 )
             },
             confirmButton = {
@@ -57,66 +58,77 @@ fun ProfileScreen(
                             username = updatedUser.username
                             showEditDialog = false
                         } else {
-                            errorMessage = "Erro ao atualizar nome"
+                            errorMessage = "Error updating username"
                         }
                     }
                 }) {
-                    Text("Salvar")
+                    Text("Save")
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showEditDialog = false }) {
-                    Text("Cancelar")
+                    Text("Cancel")
                 }
             }
         )
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Seu Perfil", style = MaterialTheme.typography.headlineSmall)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Profile") }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (loading) {
+                Spacer(modifier = Modifier.height(32.dp))
+                CircularProgressIndicator()
+            } else {
+                errorMessage?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error)
+                } ?: Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("👤 Username", style = MaterialTheme.typography.labelMedium)
+                    Text(username, style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(12.dp))
 
-        Spacer(modifier = Modifier.height(24.dp))
+                    Text("📧 Email", style = MaterialTheme.typography.labelMedium)
+                    Text(email, style = MaterialTheme.typography.titleMedium)
 
-        if (loading) {
-            CircularProgressIndicator()
-        } else {
-            errorMessage?.let {
-                Text(it, color = MaterialTheme.colorScheme.error)
-            } ?: Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Usuário: $username", style = MaterialTheme.typography.bodyLarge)
-                Text("Email: $email", style = MaterialTheme.typography.bodyLarge)
+                    Spacer(modifier = Modifier.height(32.dp))
 
-                Spacer(modifier = Modifier.height(24.dp))
+                    Button(
+                        onClick = {
+                            newUsername = TextFieldValue(username)
+                            showEditDialog = true
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Edit Username")
+                    }
 
-                Button(onClick = {
-                    newUsername = TextFieldValue(username)
-                    showEditDialog = true
-                }) {
-                    Text("Editar nome de usuário")
-                }
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = {
-                        scope.launch {
-                            userService.signOut()
-                            onLogout()
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) {
-                    Text("Sair", color = MaterialTheme.colorScheme.onError)
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                userService.signOut()
+                                onLogout()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Text("Logout", color = MaterialTheme.colorScheme.onError)
+                    }
                 }
             }
         }
     }
 }
-
-
-
