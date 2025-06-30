@@ -50,13 +50,12 @@ class GroupService(private val client: SupabaseClient) {
 
 
     suspend fun getGroupById(groupId: String): Group? {
-        Log.d("GroupService", "🔍 Buscando grupo com ID: $groupId")
-
+        val gorupIdTrimmed = groupId.trim()
         return try {
             val result = client.from("groups")
                 .select {
                     filter {
-                        eq("id", groupId)
+                        eq("id", groupIdTrimmed)
                     }
                 }
                 .decodeList<Group>()
