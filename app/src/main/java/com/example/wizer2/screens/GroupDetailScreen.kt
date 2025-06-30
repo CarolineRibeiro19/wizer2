@@ -19,7 +19,8 @@ import kotlinx.coroutines.launch
 fun GroupDetailScreen(
     groupId: String,
     groupService: GroupService,
-    userService: UserService
+    userService: UserService,
+    navController: NavController 
 ) {
     val scope = rememberCoroutineScope()
     var group by remember { mutableStateOf<Group?>(null) }
