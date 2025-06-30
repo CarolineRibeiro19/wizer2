@@ -75,6 +75,17 @@ fun StudentMainScreen(
 
                 GroupDetailScreen(groupId = groupId, groupService = groupService, userService = userService)
             }
+            composable(
+                "exercises/{subjectId}",
+                arguments = listOf(navArgument("subjectId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val subjectId = backStackEntry.arguments?.getString("subjectId") ?: ""
+                ExercisesScreen(
+                    subjectId = subjectId,
+                    questionService = questionService,
+                    onBack = { navController.popBackStack() }
+                )
+            }
         }
     }
 }
