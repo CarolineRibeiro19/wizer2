@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
         val groupService = GroupService(supabaseClient)
         val quizSubmissionService = QuizSubmissionService(supabaseClient)
         val quizzesService = QuizzesService(supabaseClient)
+        val questionService = QuestionService(supabaseclient)
 
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -59,6 +60,7 @@ class MainActivity : ComponentActivity() {
                                 userService = userService,
                                 quizSubmissionService = quizSubmissionService,
                                 quizzesService = quizzesService,
+                                questionService = questionService,
                                 userId = currentUser!!.id,
                                 onLogout = {
                                     currentUser = null // Faz logout local
