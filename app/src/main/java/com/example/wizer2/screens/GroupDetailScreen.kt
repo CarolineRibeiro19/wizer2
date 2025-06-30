@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.wizer2.models.Group
 import com.example.wizer2.models.User
 import com.example.wizer2.services.GroupService
@@ -20,7 +21,7 @@ fun GroupDetailScreen(
     groupId: String,
     groupService: GroupService,
     userService: UserService,
-    navController: NavController 
+    navController: NavController
 ) {
     val scope = rememberCoroutineScope()
     var group by remember { mutableStateOf<Group?>(null) }
@@ -32,7 +33,7 @@ fun GroupDetailScreen(
         Log.d("TEST", "Carregando detalhes do grupo $groupId")
         scope.launch {
             try {
-                group = groupService.getGroupById(groupId)
+                group = groupService.getGroupById(groupId.trim())
                 group?.let {
                     professor = userService.getUserById(it.professorId)
                     members = groupService.getGroupMembers(it.id)
@@ -51,23 +52,47 @@ fun GroupDetailScreen(
         }
     } else {
         group?.let { g ->
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)) {
-
-                Text(text = "Grupo: ${g.name}", style = MaterialTheme.typography.headlineSmall)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp)
+            ) {
+                Text("📘 ${g.name}", style = MaterialTheme.typography.headlineSmall)
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text(text = "Professor: ${professor?.username ?: "Desconhecido"}")
-                Text(text = "Email: ${professor?.email ?: "Desconhecido"}")
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("👨‍🏫 Professor", style = MaterialTheme.typography.titleMedium)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Nome: ${professor?.username ?: "Desconhecido"}")
+                        Text("Email: ${professor?.email ?: "Desconhecido"}")
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Participantes:", style = MaterialTheme.typography.titleMedium)
+                Text("👥 Participantes", style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(8.dp))
 
-                LazyColumn(modifier = Modifier.weight(1f)) {
-                    items(members) { user ->
-                        Text("• ${user.username} (${user.email})", modifier = Modifier.padding(vertical = 4.dp))
+                if (members.isEmpty()) {
+                    Text("Nenhum membro encontrado.")
+                } else {
+                    LazyColumn(modifier = Modifier.weight(1f)) {
+                        items(members) { user ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                            ) {
+                                Column(modifier = Modifier.padding(12.dp)) {
+                                    Text("• ${user.username}", style = MaterialTheme.typography.bodyLarge)
+                                    Text("${user.email}", style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -76,24 +101,27 @@ fun GroupDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Button(onClick = {
-                        navController.navigate("exercises/${group.subjectId}")
-                    }) {
-                        Text("Exercícios")
+                    Button(
+                        onClick = { navController.navigate("exercises/${g.subjectId}") },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("🧠 Exercícios")
                     }
 
-                    Button(onClick = { /* Navegar para reuniões */ }) {
-                        Text("Reuniões")
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Button(
+                        onClick = { /* navController.navigate("meetings/${g.id}") */ },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("📅 Reuniões")
                     }
                 }
             }
         } ?: run {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Grupo não encontrado.")
+                Text("❌ Grupo não encontrado.")
             }
         }
     }
 }
-
-
-
