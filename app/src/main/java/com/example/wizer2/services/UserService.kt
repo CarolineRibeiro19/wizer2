@@ -125,7 +125,17 @@ class UserService(
             null
         }
     }
-
+    suspend fun getUserById(userId: String): User? {
+        return try {
+            val users = postgrest.from("profiles").select {
+                filter { eq("id", userId) }
+            }.decodeList<User>()
+            users.firstOrNull()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
     suspend fun updateUsername(newUsername: String): User? {
         return try {
             val currentUser = auth.currentUserOrNull()

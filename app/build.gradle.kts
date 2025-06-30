@@ -55,6 +55,7 @@ dependencies {
     implementation(platform("io.github.jan-tennert.supabase:bom:3.1.4"))
     implementation(libs.postgrest.kt)
     implementation(libs.ktor.client.android)
+    implementation(libs.androidx.navigation.compose)
 
 
     testImplementation(libs.junit)
