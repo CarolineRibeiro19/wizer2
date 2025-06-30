@@ -53,4 +53,20 @@ class QuestionService(private val client: SupabaseClient) {
                 }
             }
     }
+    
+    suspend fun getRandomQuestionsBySubject(subjectId: String, count: Int = 10): List<Question> {
+    return try {
+        client.from("questions")
+            .select {
+                filter { eq("subject_id", subjectId) }
+            }
+            .decodeList<Question>()
+            .shuffled()
+            .take(count)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        emptyList()
+    }
+}
+
 }
