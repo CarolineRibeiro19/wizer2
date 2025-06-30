@@ -60,7 +60,7 @@ git checkout wizer_final_version
 # 4. Connect your Android device or start an emulator
 
 # 5. Press Run (Shift + F10) or use the ▶️ Run button in Android Studio
-
+```
 ---
 
 ## 📱 Sensor Integration
