@@ -21,6 +21,7 @@ fun StudentMainScreen(
     userService: UserService,
     quizSubmissionService: QuizSubmissionService,
     quizzesService: QuizzesService,
+    questionService: QuestionService,
     userId: String,
     onLogout: () -> Unit
 ) {
