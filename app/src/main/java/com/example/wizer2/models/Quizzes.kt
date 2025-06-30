@@ -10,5 +10,5 @@ data class Quizzes(
     val title: String,
     @SerialName("subject_id") val subjectId: String,
     @SerialName("created_by") val createdBy: String,
-    val maxScore: Int
+    @SerialName("max_score") val maxScore: Int
 )
