@@ -25,8 +25,7 @@ fun ExercisesScreen(
     LaunchedEffect(subjectId) {
         scope.launch {
             try {
-                val allQuestions = questionService.getQuestionsBySubject(subjectId)
-                questions = allQuestions.shuffled().take(10)
+                questions = questionService.getRandomQuestionsBySubject(subjectId, count = 10)
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
